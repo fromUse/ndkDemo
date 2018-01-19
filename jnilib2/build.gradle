@@ -1,0 +1,54 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk{
+            //这里指定CPU类型，如果不指定会把所有so文件打包到apk中
+            //如果不指定 这样会导致安装包文件更大（并且打包时会弹出警告），所以最好指定CPU类型
+            abiFilters  "armeabi-v7a","x86"
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+// 方案1 so自动生成，打包apk时自动获取so
+//    externalNativeBuild{
+//        ndkBuild {
+//            //这里指定Android.mk文件，so文件才会自动打包到apk，否则apk将因为找不到so而崩溃.
+//            //so会生成在(当前模块目录)/build/intermediates/ndkBuild/xxxxxx
+//            path 'src/main/jni/Android.mk'
+//        }
+//    }
+
+// 方案2 so 开发者手动打包
+// 纯手动打包时,即so文件由开发者手动 ndk-build 然后会生成libs，obj两个文件夹，里面包含编译后的so文件 和o文件
+//    sourceSets{
+//       main {
+//         jni.srcDirs = [ 'src/main/jni' ] //指定jni源码路径
+//         //gradle 默认会从src/main/jniLibs/xxx 找so
+//         jniLibs.srcDirs 'src/main/libs' //自定义目录 打包apk时将会从这个目录获取so
+//       }
+//   }
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:26.+'
+    testCompile 'junit:junit:4.12'
+}
